@@ -11,8 +11,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
+#include <time.h>
 
-#define WINDOW_NAME "Display Image"
+#define WINDOW_NAME "Robo Cup"
 #define NEIBORHOOD_MATRIX_ROWS 9
 #define NEIBORHOOD_MATRIX_COLUMNS 9
 
@@ -25,7 +26,7 @@ Vec3b color(92, 37, 201);
 void onMouse(int event, int x, int y, int flags, void *userdata);
 
 int main(int argc, char** argv) {
-   
+    srand(time(0));
     Mat image = imread("robocup.jpg");
     if (image.empty()) {
         cout << "No Image\n";
@@ -60,13 +61,20 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
        Vec3b lowerBound = Vec3b(15, 0, 0);
        Vec3b upperBound = Vec3b(53, 0, 0);
        Vec3b dst;
+        int random = rand() % 360;
+        int random2 = rand() % 360;
+        cout << random << endl;
         for (int i = 0; i < image.rows; ++i) {
             for (int j = 0; j < image.cols; ++j) {
                 
                 Vec3b hsv = image.at<Vec3b>(i, j);
                 cv::inRange(hsv, lowerBound, upperBound, dst);
                 if (dst[0] == 255) {
-                    image.at<Vec3b>(i, j)[0] += 230;
+                    //image.at<Vec3b>(i, j)[0] -= image.at<Vec3b>(i, j)[0];
+                    image.at<Vec3b>(i, j)[0] = random;
+                }
+                if ((hsv[0] >= 0 && hsv[0] <= 15) || (hsv[0] >= 177 && hsv[0] <= 179)) {
+                    image.at<Vec3b>(i, j)[0] = random2;
                 }
                 
                 
