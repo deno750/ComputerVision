@@ -68,7 +68,7 @@ int main() {
     if (src.empty()) {
         cout << "Image not found!\n";
     }
-    cv::remap(src, dst, map1, map2, cv::INTER_CUBIC);
+    cv::remap(src, dst, map1, map2, cv::INTER_NEAREST);
     cv::imshow("ORIGINAL", src);
     cv::imshow("REMAPPED", dst);
     cv::waitKey(0);
