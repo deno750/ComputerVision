@@ -22,8 +22,14 @@ add_executable(
     src/Lab2/lab2.cpp
 )
 
+add_executable(
+    lab3
+    src/Lab3/lab3.cpp
+)
+
 
 
 target_link_libraries(lab1_rgb ${OpenCV_LIBS})
 target_link_libraries(lab1_hsv ${OpenCV_LIBS})
 target_link_libraries(lab2 ${OpenCV_LIBS})
+target_link_libraries(lab3 ${OpenCV_LIBS})

@@ -74,7 +74,7 @@ int main() {
     }
     
     double meanReprojectionError = sqrt(reprojectionError / totalPoints);
-    cout << "Reprojection error: " << meanReprojectionError << endl;
+    cout << "Mean Reprojection Error: " << meanReprojectionError << endl;
     
     double minError, maxError;
     minError = errors.size();
