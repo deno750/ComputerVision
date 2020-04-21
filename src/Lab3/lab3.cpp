@@ -2,8 +2,16 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include "filter.h"
+
+#define ORIGINAL_IMAGE_WINDOW "Original image"
+#define WRONG_EQUALIZATION_WINDOW "Wrong Equalized Image"
+#define CORRECT_EQUALIZATION_WINDOW "Correct Equalization Image"
 
 void showHistogram(std:: string* wname, std::vector<cv::Mat>& hists);
+void onMedianTrackPad(int pos, void* data);
+void onGaussianTrackPad(int pos, void* data);
+void onBilinearTrackPad(int pos, void* data);
 
 using namespace std;
 int main() {
@@ -14,7 +22,7 @@ int main() {
         return -1;
     }
     cv::resize(mat, mat, cv::Size(mat.cols / 3, mat.rows / 3));
-    cv::imshow("Original image", mat);
+    cv::imshow(ORIGINAL_IMAGE_WINDOW, mat);
     vector<cv::Mat> channelVectors;
     cv::split(mat, channelVectors);
     
@@ -37,7 +45,7 @@ int main() {
     vector<cv::Mat> equalizedHists = {equalizedB, equalizedG, equalizedR};
     cv::Mat mergedImage;
     cv::merge(equalizedHists, mergedImage);
-    cv::imshow("Wrong Equalized Image", mergedImage);
+    cv::imshow(WRONG_EQUALIZATION_WINDOW, mergedImage);
     
     cv::calcHist(&equalizedB, 1, channels, cv::Mat(), bHist, 1, &histSize, &histRanges);
     cv::calcHist(&equalizedG, 1, channels, cv::Mat(), gHist, 1, &histSize, &histRanges);
@@ -59,7 +67,7 @@ int main() {
     vector<cv::Mat> equalizedHSV = {hsvSplit[0], hsvSplit[1], eqV};
     cv::merge(equalizedHSV, mergedHsv);
     cv::cvtColor(mergedHsv, mergedHsv, cv::COLOR_HSV2BGR);
-    cv::imshow("Correct Equalization Image", mergedHsv);
+    cv::imshow(CORRECT_EQUALIZATION_WINDOW, mergedHsv);
     
     cv::split(mergedHsv, hsvSplit);
     
@@ -73,6 +81,14 @@ int main() {
     showHistogram(correctEqualizedWindowNames, hsvHists);
     //============= Ended point 5 ================
     
+    
+    int medianTrackPadValue = 0;
+    int gaussianTrackPadValue = 0;
+    int bilinearTrackPadValue = 0;
+    MedianFilter medianFilter = MedianFilter(mergedHsv, 3);
+    cv::createTrackbar("Median", CORRECT_EQUALIZATION_WINDOW, &medianTrackPadValue, 21, onMedianTrackPad, (void *) &medianFilter);
+    cv::createTrackbar("Gaussian", CORRECT_EQUALIZATION_WINDOW, &gaussianTrackPadValue, 20, onGaussianTrackPad, (void *) &mergedHsv);
+    cv::createTrackbar("Bilateral", CORRECT_EQUALIZATION_WINDOW, &bilinearTrackPadValue, 20, onBilinearTrackPad, (void *) &mergedHsv);
     cv::waitKey(0);
     return 0;
 }
@@ -112,3 +128,19 @@ void showHistogram(std:: string* wname, std::vector<cv::Mat>& hists) {
       cv::imshow(hists.size() == 1 ? "value" : wname[i], canvas[i]);
     }
 }
+
+void onMedianTrackPad(int pos, void* data) {
+    MedianFilter filter = *(MedianFilter *) data;
+    filter.setSize(pos);
+    filter.doFilter();
+    cv::imshow(CORRECT_EQUALIZATION_WINDOW, filter.getResult());
+}
+
+void onGaussianTrackPad(int pos, void* data) {
+    
+}
+
+void onBilinearTrackPad(int pos, void* data) {
+    
+}
+
