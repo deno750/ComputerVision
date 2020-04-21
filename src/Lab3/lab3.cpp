@@ -3,7 +3,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-void showHistogram(std::vector<cv::Mat>& hists);
+void showHistogram(std:: string* wname, std::vector<cv::Mat>& hists);
 
 using namespace std;
 int main() {
@@ -13,7 +13,7 @@ int main() {
         cout << "Unable to find image" << endl;
         return -1;
     }
-    
+    cv::resize(mat, mat, cv::Size(mat.cols / 3, mat.rows / 3));
     cv::imshow("Original image", mat);
     vector<cv::Mat> channelVectors;
     cv::split(mat, channelVectors);
@@ -27,7 +27,9 @@ int main() {
     cv::calcHist(&channelVectors[1], 1, channels, cv::Mat(), gHist, 1, &histSize, &histRanges);
     cv::calcHist(&channelVectors[2], 1, channels, cv::Mat(), rHist, 1, &histSize, &histRanges);
     vector<cv::Mat> hists = {bHist, gHist, rHist};
-    showHistogram(hists);
+    std::string originalWindowNames[] = {"original B", "original G", "original R"};
+    showHistogram(originalWindowNames, hists);
+    
     cv::Mat equalizedB, equalizedG, equalizedR;
     cv::equalizeHist(channelVectors[0], equalizedB);
     cv::equalizeHist(channelVectors[1], equalizedG);
@@ -35,45 +37,40 @@ int main() {
     vector<cv::Mat> equalizedHists = {equalizedB, equalizedG, equalizedR};
     cv::Mat mergedImage;
     cv::merge(equalizedHists, mergedImage);
-    cv::imshow("Merged Image", mergedImage);
-    //============== Endend points 1, 2, 3, 4 ===================
+    cv::imshow("Wrong Equalized Image", mergedImage);
+    
+    cv::calcHist(&equalizedB, 1, channels, cv::Mat(), bHist, 1, &histSize, &histRanges);
+    cv::calcHist(&equalizedG, 1, channels, cv::Mat(), gHist, 1, &histSize, &histRanges);
+    cv::calcHist(&equalizedR, 1, channels, cv::Mat(), rHist, 1, &histSize, &histRanges);
+    hists = {bHist, gHist, rHist};
+    std::string mergedRGBWindowNames[] = {"Wrong B", "Wrong G", "Wrong R"};
+    showHistogram(mergedRGBWindowNames, hists);
+    //============== Ended points 1, 2, 3, 4 ===================
     
     cv::Mat hsv;
     cv::cvtColor(mat, hsv, cv::COLOR_BGR2HSV);
     vector<cv::Mat> hsvSplit;
     cv::split(hsv, hsvSplit);
     
+    cv::Mat eqV;
+    //The best equalized image is obtained equalizing the V channel
+    cv::equalizeHist(hsvSplit[2], eqV);
+    cv::Mat mergedHsv;
+    vector<cv::Mat> equalizedHSV = {hsvSplit[0], hsvSplit[1], eqV};
+    cv::merge(equalizedHSV, mergedHsv);
+    cv::cvtColor(mergedHsv, mergedHsv, cv::COLOR_HSV2BGR);
+    cv::imshow("Correct Equalization Image", mergedHsv);
+    
+    cv::split(mergedHsv, hsvSplit);
+    
     cv::Mat hHist, sHist, vHist;
     cv::calcHist(&hsvSplit[0], 1, channels, cv::Mat(), hHist, 1, &histSize, &histRanges);
     cv::calcHist(&hsvSplit[1], 1, channels, cv::Mat(), sHist, 1, &histSize, &histRanges);
     cv::calcHist(&hsvSplit[2], 1, channels, cv::Mat(), vHist, 1, &histSize, &histRanges);
+    
     vector<cv::Mat> hsvHists = {hHist, sHist, vHist};
-    showHistogram(hsvHists);
-    cv::Mat eqH, eqS, eqV;
-    
-    cv::equalizeHist(hsvSplit[0], eqH);
-    cv::Mat mergedHsv1;
-    vector<cv::Mat> equalizedHSV = {eqH, hsvSplit[1], hsvSplit[2]};
-    cv::merge(equalizedHSV, mergedHsv1);
-    cv::cvtColor(mergedHsv1, mergedHsv1, cv::COLOR_HSV2BGR);
-    cv::imshow("Equalized H", mergedHsv1);
-    
-    cv::equalizeHist(hsvSplit[1], eqS);
-    cv::Mat mergedHsv2;
-    equalizedHSV = {hsvSplit[0], eqS, hsvSplit[2]};
-    cv::merge(equalizedHSV, mergedHsv2);
-    cv::cvtColor(mergedHsv2, mergedHsv2, cv::COLOR_HSV2BGR);
-    cv::imshow("Equalized S", mergedHsv2);
-    
-    cv::equalizeHist(hsvSplit[2], eqV);
-    cv::Mat mergedHsv3;
-    equalizedHSV = {hsvSplit[0], hsvSplit[1], eqV};
-    cv::merge(equalizedHSV, mergedHsv3);
-    cv::cvtColor(mergedHsv3, mergedHsv3, cv::COLOR_HSV2BGR);
-    cv::imshow("Equalized V", mergedHsv3);
-    
-    cv::split(mergedHsv3, channelVectors);
-    showHistogram(channelVectors);
+    std::string correctEqualizedWindowNames[] = {"correct B", "correct G", "correct R"};
+    showHistogram(correctEqualizedWindowNames, hsvHists);
     //============= Ended point 5 ================
     
     cv::waitKey(0);
@@ -84,7 +81,7 @@ int main() {
 // e.g.: hists[0] = cv:mat of size 256 with the red histogram
 //       hists[1] = cv:mat of size 256 with the green histogram
 //       hists[2] = cv:mat of size 256 with the blue histogram
-void showHistogram(std::vector<cv::Mat>& hists) {
+void showHistogram(std:: string* wname, std::vector<cv::Mat>& hists) {
     // Min/Max computation
     double hmax[3] = {0,0,0};
     double min;
@@ -92,7 +89,7 @@ void showHistogram(std::vector<cv::Mat>& hists) {
     cv::minMaxLoc(hists[1], &min, &hmax[1]);
     cv::minMaxLoc(hists[2], &min, &hmax[2]);
 
-    std::string wname[3] = { "blue", "green", "red" };
+    //std::string wname[3] = { "blue", "green", "red" };
     cv::Scalar colors[3] = { cv::Scalar(255,0,0), cv::Scalar(0,255,0),
                              cv::Scalar(0,0,255) };
 
