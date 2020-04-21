@@ -13,6 +13,8 @@ int main() {
         cout << "Unable to find image" << endl;
         return -1;
     }
+    
+    cv::imshow("Original image", mat);
     vector<cv::Mat> channelVectors;
     cv::split(mat, channelVectors);
     
@@ -33,7 +35,6 @@ int main() {
     vector<cv::Mat> equalizedHists = {equalizedB, equalizedG, equalizedR};
     cv::Mat mergedImage;
     cv::merge(equalizedHists, mergedImage);
-    //showHistogram(equalizedHists);
     cv::imshow("Merged Image", mergedImage);
     //============== Endend points 1, 2, 3, 4 ===================
     
@@ -53,16 +54,27 @@ int main() {
     cv::equalizeHist(hsvSplit[0], eqH);
     cv::Mat mergedHsv1;
     vector<cv::Mat> equalizedHSV = {eqH, hsvSplit[1], hsvSplit[2]};
-    cv::merge(equalizedHists, mergedHsv1);
+    cv::merge(equalizedHSV, mergedHsv1);
     cv::cvtColor(mergedHsv1, mergedHsv1, cv::COLOR_HSV2BGR);
-    cv::imshow("HSV Mrged Image1", mergedHsv1);
+    cv::imshow("Equalized H", mergedHsv1);
     
     cv::equalizeHist(hsvSplit[1], eqS);
     cv::Mat mergedHsv2;
     equalizedHSV = {hsvSplit[0], eqS, hsvSplit[2]};
-    cv::merge(equalizedHists, mergedHsv2);
+    cv::merge(equalizedHSV, mergedHsv2);
     cv::cvtColor(mergedHsv2, mergedHsv2, cv::COLOR_HSV2BGR);
-    cv::imshow("HSV Mrged Image2", mergedHsv2);
+    cv::imshow("Equalized S", mergedHsv2);
+    
+    cv::equalizeHist(hsvSplit[2], eqV);
+    cv::Mat mergedHsv3;
+    equalizedHSV = {hsvSplit[0], hsvSplit[1], eqV};
+    cv::merge(equalizedHSV, mergedHsv3);
+    cv::cvtColor(mergedHsv3, mergedHsv3, cv::COLOR_HSV2BGR);
+    cv::imshow("Equalized V", mergedHsv3);
+    
+    cv::split(mergedHsv3, channelVectors);
+    showHistogram(channelVectors);
+    //============= Ended point 5 ================
     
     cv::waitKey(0);
     return 0;

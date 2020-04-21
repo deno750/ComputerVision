@@ -54,7 +54,7 @@ int main() {
         
     }
     
-    //Takes the size of the latest image because the images are all the same size.
+    //Takes the size of the latest image because the images are all of the same size.
     double cameraError = cv::calibrateCamera(objectPoints, imagePoints, mat.size(), cameraMatrix, distCoeffs, rvecs, tvecs);
     cout << "Intrinsic coeffs:\n " << cameraMatrix << endl;
     cout << "Distortion coefficents:\n " << distCoeffs << endl;
@@ -114,7 +114,7 @@ int main() {
     cv::moveWindow("REMAPPED", src.cols, 0);
     cout << "\n=============================================" << endl;
     cout << "                      END                      " << endl;
-     cout << "=============================================\n" << endl;
+    cout << "=============================================\n" << endl;
     cv::waitKey(0);
     return 0;
 }
