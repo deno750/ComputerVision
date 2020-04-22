@@ -8,10 +8,17 @@
 #define WRONG_EQUALIZATION_WINDOW "Wrong Equalized Image"
 #define CORRECT_EQUALIZATION_WINDOW "Correct Equalization Image"
 
+#define MEDIAN_FILTER_WINDOW "Median filter"
+#define GAUSSIAN_FILTER_WINDOW "Gaussian filter"
+#define BILATERAL_FILTER_WINDOW "Bilateral filter"
+
 void showHistogram(std:: string* wname, std::vector<cv::Mat>& hists);
 void onMedianTrackPad(int pos, void* data);
-void onGaussianTrackPad(int pos, void* data);
-void onBilinearTrackPad(int pos, void* data);
+void onGaussianKernelSizeTrackPad(int pos, void* data);
+void onGaussianSigmaTrackPad(int pos, void* data);
+void onBilateralKernelSizeTrackPad(int pos, void* data);
+void onBilateralSigmaRangeTrackPad(int pos, void* data);
+void onBilateralSigmaSpaceTrackPad(int pos, void* data);
 
 using namespace std;
 int main() {
@@ -84,11 +91,21 @@ int main() {
     
     int medianTrackPadValue = 0;
     int gaussianTrackPadValue = 0;
-    int bilinearTrackPadValue = 0;
+    int bilateralTrackPadValue = 0;
     MedianFilter medianFilter = MedianFilter(mergedHsv, 3);
-    cv::createTrackbar("Median", CORRECT_EQUALIZATION_WINDOW, &medianTrackPadValue, 21, onMedianTrackPad, (void *) &medianFilter);
-    cv::createTrackbar("Gaussian", CORRECT_EQUALIZATION_WINDOW, &gaussianTrackPadValue, 20, onGaussianTrackPad, (void *) &mergedHsv);
-    cv::createTrackbar("Bilateral", CORRECT_EQUALIZATION_WINDOW, &bilinearTrackPadValue, 20, onBilinearTrackPad, (void *) &mergedHsv);
+    GaussianFilter gaussianFilter = GaussianFilter(mergedHsv, 3);
+    BilateralFilter bilateralFilter = BilateralFilter(mergedHsv, 3);
+    cv::imshow(MEDIAN_FILTER_WINDOW, mergedHsv);
+    cv::imshow(GAUSSIAN_FILTER_WINDOW, mergedHsv);
+    cv::imshow(BILATERAL_FILTER_WINDOW, mergedHsv);
+    cv::createTrackbar("Kernel size", MEDIAN_FILTER_WINDOW, &medianTrackPadValue, 21, onMedianTrackPad, (void *) &medianFilter);
+    
+    cv::createTrackbar("Kernel size", GAUSSIAN_FILTER_WINDOW, &gaussianTrackPadValue, 20, onGaussianKernelSizeTrackPad, (void *) &gaussianFilter);
+    cv::createTrackbar("Sigma", GAUSSIAN_FILTER_WINDOW, &gaussianTrackPadValue, 100, onGaussianSigmaTrackPad, (void *) &gaussianFilter);
+    
+    cv::createTrackbar("Kernel size", BILATERAL_FILTER_WINDOW, &bilateralTrackPadValue, 20, onBilateralKernelSizeTrackPad, (void *) &bilateralFilter);
+    cv::createTrackbar("Sigma range", BILATERAL_FILTER_WINDOW, &bilateralTrackPadValue, 300, onBilateralSigmaRangeTrackPad, (void *) &bilateralFilter);
+    cv::createTrackbar("Sigma space", BILATERAL_FILTER_WINDOW, &bilateralTrackPadValue, 300, onBilateralSigmaSpaceTrackPad, (void *) &bilateralFilter);
     cv::waitKey(0);
     return 0;
 }
@@ -133,14 +150,40 @@ void onMedianTrackPad(int pos, void* data) {
     MedianFilter filter = *(MedianFilter *) data;
     filter.setSize(pos);
     filter.doFilter();
-    cv::imshow(CORRECT_EQUALIZATION_WINDOW, filter.getResult());
+    cv::imshow(MEDIAN_FILTER_WINDOW, filter.getResult());
 }
 
-void onGaussianTrackPad(int pos, void* data) {
-    
+void onGaussianKernelSizeTrackPad(int pos, void* data) {
+    GaussianFilter* filter = (GaussianFilter *) data;
+    filter->setSize(pos);
+    filter->doFilter();
+    cv::imshow(GAUSSIAN_FILTER_WINDOW, filter->getResult());
 }
 
-void onBilinearTrackPad(int pos, void* data) {
-    
+void onGaussianSigmaTrackPad(int pos, void* data) {
+     GaussianFilter* filter = (GaussianFilter *) data;
+     filter->setSigma(pos);
+     filter->doFilter();
+     cv::imshow(GAUSSIAN_FILTER_WINDOW, filter->getResult());
 }
 
+void onBilateralKernelSizeTrackPad(int pos, void* data) {
+    BilateralFilter* filter = (BilateralFilter *) data;
+    filter->setSize(pos);
+    filter->doFilter();
+    cv::imshow(BILATERAL_FILTER_WINDOW, filter->getResult());
+}
+
+void onBilateralSigmaRangeTrackPad(int pos, void* data) {
+    BilateralFilter* filter = (BilateralFilter *) data;
+    filter->setSigmaRange(pos);
+    filter->doFilter();
+    cv::imshow(BILATERAL_FILTER_WINDOW, filter->getResult());
+}
+
+void onBilateralSigmaSpaceTrackPad(int pos, void* data) {
+    BilateralFilter* filter = (BilateralFilter *) data;
+    filter->setSigmaSpace(pos);
+    filter->doFilter();
+    cv::imshow(BILATERAL_FILTER_WINDOW, filter->getResult());
+}

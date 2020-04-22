@@ -51,6 +51,15 @@ class GaussianFilter : public Filter  {
 // place constructor
 // re-implement  doFilter()
 // additional parameter: standard deviation (sigma)
+    
+public:
+    GaussianFilter(cv::Mat input_img, int filter_size, double sigma = 0);
+    void setSigma(double sigma);
+    virtual void doFilter();
+    
+private:
+    double sigma; //Standard deviation
+    
 
 };
 
@@ -75,6 +84,16 @@ class BilateralFilter : public Filter {
 // place constructor
 // re-implement  doFilter()
 // additional parameters: sigma_range, sigma_space
+    
+public:
+    BilateralFilter(cv::Mat input_img, int filter_size, double sigma_range = 0, double sigma_space = 0);
+    void setSigmaRange(double sigmaRange);
+    void setSigmaSpace(double sigmaSpace);
+    virtual void doFilter();
+    
+private:
+    double sigma_range;
+    double sigma_space;
 
 
 };
