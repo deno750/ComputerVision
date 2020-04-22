@@ -147,10 +147,10 @@ void showHistogram(std:: string* wname, std::vector<cv::Mat>& hists) {
 }
 
 void onMedianTrackPad(int pos, void* data) {
-    MedianFilter filter = *(MedianFilter *) data;
-    filter.setSize(pos);
-    filter.doFilter();
-    cv::imshow(MEDIAN_FILTER_WINDOW, filter.getResult());
+    MedianFilter* filter = (MedianFilter *) data;
+    filter->setSize(pos);
+    filter->doFilter();
+    cv::imshow(MEDIAN_FILTER_WINDOW, filter->getResult());
 }
 
 void onGaussianKernelSizeTrackPad(int pos, void* data) {
