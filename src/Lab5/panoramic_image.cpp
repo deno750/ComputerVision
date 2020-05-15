@@ -122,3 +122,8 @@ cv::Mat PanoramicImage::computeMerge() {
     }
     return merged;
 }
+
+cv::Mat PanoramicImage::computeLandscape() {
+    computeFeatures();
+    return computeMerge();
+}
