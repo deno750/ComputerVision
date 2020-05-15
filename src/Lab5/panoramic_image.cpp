@@ -24,6 +24,7 @@ void PanoramicImage::computeFeatures() {
     }
     keyPoints.clear();
     descriptors.clear();
+    translations.clear();
     
     feature2d->detect(cylindricalImages, keyPoints);
     feature2d->compute(cylindricalImages, keyPoints, descriptors);
