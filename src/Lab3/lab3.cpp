@@ -28,7 +28,7 @@ int main() {
         cout << "Unable to find image" << endl;
         return -1;
     }
-    cv::resize(mat, mat, cv::Size(mat.cols / 3, mat.rows / 3));
+    //cv::resize(mat, mat, cv::Size(mat.cols , mat.rows));
     cv::imshow(ORIGINAL_IMAGE_WINDOW, mat);
     vector<cv::Mat> channelVectors;
     cv::split(mat, channelVectors);

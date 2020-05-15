@@ -8,6 +8,7 @@
 #define HOUGH_LINE_TUNING_WINDOW "Houghline tuning window"
 #define ELABORATED_IMAGE_WINDOW_NAME "Elaborated image"
 #define HOUGH_CIRCLE_TUNING_WINDOW "HoughCircle tuning window"
+#define CONVEX_POLY_RESULT_WINDOW "Convex Poly result window"
 
 #define RHO 1
 #define THETA 0.383972
@@ -36,7 +37,7 @@ int cannyLinethreshold1 = CANNY_THRESHOLD_1;
 int cannyLinethreshold2 = CANNY_THRESHOLD_2;
 
 int cannyCirclethreshold1 = 1309;
-int cannyCirclethreshold2 = 649;
+int cannyCirclethreshold2 = 554;
 
 //Hough lines tuning prameters
 double rho = RHO;
@@ -80,6 +81,7 @@ int main() {
     drawLines(lineImage, lines);
     cv::imshow(HOUGH_LINE_TUNING_WINDOW, lineImage);
     drawPolygon(image, lines);
+    cv::imshow(CONVEX_POLY_RESULT_WINDOW, image);
     
     cv::Mat cannyCircleImage;
     cv::Canny(input, cannyCircleImage, cannyCirclethreshold1, cannyCirclethreshold2);
@@ -93,7 +95,7 @@ int main() {
     cv::createTrackbar("Param1", HOUGH_CIRCLE_TUNING_WINDOW, &houghCircleParam1, 300, onHoughCircleParam1Trackpad, &houghCircleImages);
     cv::createTrackbar("Param2", HOUGH_CIRCLE_TUNING_WINDOW, &houghCircleParam2, 100, onHoughCircleParam2TrackPad, &houghCircleImages);
     vector<cv::Vec3f> circles;
-    cv::HoughCircles(cannyCircleImage, circles, cv::HOUGH_GRADIENT, 1, cannyLinesInput.rows / 1, houghCircleParam1, houghCircleParam2 );
+    cv::HoughCircles(cannyCircleImage, circles, cv::HOUGH_GRADIENT, 1, cannyLinesInput.rows, houghCircleParam1, houghCircleParam2);
     cv::Mat circleImage = input.clone();
     drawCircles(circleImage, circles);
     drawCircles(image, circles);
@@ -164,7 +166,7 @@ void onThetaTrackPad(int pos, void* data) {
     cv::Mat canny = imgs.canny.clone();
     std::vector<cv::Vec2f> output;
     cv::HoughLines(canny, output, rho, theta, thresold);
-    cout << "Rhos " << rho << " Theta " << theta << " Thresold " << thresold << endl;
+    cout << "Rhos " << rho << " Theta " << pos << " Thresold " << thresold << endl;
     
     input = drawLines(input, output);
     cv::imshow(HOUGH_LINE_TUNING_WINDOW, input);
@@ -225,7 +227,7 @@ cv::Mat drawLines(cv::Mat input, vector<cv::Vec2f> lines) {
         cv::Point pt1, pt2;
         double a = cos(theta), b = sin(theta);
         double x0 = a*rho, y0 = b*rho;
-        pt1.x = cvRound(x0 + 1000*(-b));
+        pt1.x = cvRound(x0 + 1000*(-b)); //1000 indicates the line's lenght
         pt1.y = cvRound(y0 + 1000*(a));
         pt2.x = cvRound(x0 - 1000*(-b));
         pt2.y = cvRound(y0 - 1000*(a));
@@ -246,15 +248,15 @@ void drawPolygon(cv::Mat input, vector<cv::Vec2f> lines) {
     double a2 = cos(theta2), b2 = sin(theta2);
     
     for (int x = 0; x < input.cols; ++x) {
-        double eq1 = - (a1 / b1) * x + rho1 / b1;
-        double eq2 = - (a2 / b2) * x + rho2 / b2;
-        if (round(eq1) == round(eq2)) { //Finds intersection between two lines
+        double y1 = - (a1 / b1) * x + rho1 / b1; //Rect equations
+        double y2 = - (a2 / b2) * x + rho2 / b2;
+        if (round(y1) == round(y2)) { //Finds intersection between two lines
             cv::Point point;
             point.x = x;
-            point.y = round(eq1);
+            point.y = round(y1);
             points.push_back(point);
         }
-        if (round(eq1) == input.rows || round(eq2) == input.rows) { //Finds intersection of the two lines with the bottom of the image
+        if (round(y1) == input.rows || round(y2) == input.rows) { //Finds intersection of the two lines with the bottom of the image
             cv::Point point;
             point.x = x;
             point.y = input.rows;
