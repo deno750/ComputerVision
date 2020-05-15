@@ -16,24 +16,21 @@
 
 using namespace std;
 
+double FOV = 66;
 int userRatio = 3;
 
 int main() {
     vector<cv::String> images;
     string imagesDirectory = DOLOMITES;
     string imagesPattern;
-    string pattern;
+    string pattern = "i*.png";
+    
     if (imagesDirectory == IMAGES_DATA || imagesDirectory == KITCHEN) {
         pattern = "i*.bmp";
-    } else {
-        pattern = "i*.png";
     }
     
-    double FOV;
     if (imagesDirectory == DOLOMITES) {
         FOV = 54;
-    } else {
-        FOV = 66;
     }
     cv::utils::fs::glob(imagesDirectory, pattern, images);
     vector<cv::Mat> imagesMat;
@@ -43,7 +40,7 @@ int main() {
         cv::Mat mat = cv::imread(imagePath);
         imagesMat.push_back(mat);
     }
-    PanoramicImage panoramicImage = PanoramicImage(imagesMat, FOV, 3);
+    PanoramicImage panoramicImage = PanoramicImage(imagesMat, FOV, userRatio);
     cv::Mat panoramic = panoramicImage.computeLandscape();
     cv::imshow("Panoramic Image", panoramic);
     cv::waitKey(0);
