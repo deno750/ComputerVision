@@ -1,8 +1,12 @@
 #include "panoramic_image.h"
 
-PanoramicImage::PanoramicImage(vector<cv::Mat> images, double FOV, int ratio, bool useSIFT) {
+PanoramicImage::PanoramicImage(vector<cv::Mat> images, double FOV, int ratio, bool useSIFT, bool equalizeImages) {
     for (int i = 0; i < images.size(); ++i) {
-        cylindricalImages.push_back(computeCylindricReprojection(images[i], FOV));
+        cv::Mat reprojected = computeCylindricReprojection(images[i], FOV);
+        if (equalizeImages) {
+            cv::equalizeHist(reprojected, reprojected);
+        }
+        cylindricalImages.push_back(reprojected);
     }
     this->ratio = ratio;
     this->useSIFT = useSIFT;
@@ -129,7 +133,7 @@ cv::Mat PanoramicImage::computeMerge() {
             rangeMin = static_cast<int>(startCutMedianPoint.x);
             rangeMax = static_cast<int>(endCutMedianPoint.x);
         }
-        if (rangeMax < rangeMin) {
+        if (rangeMax <= rangeMin) {
             rangeMin = 0;
             rangeMax = img.cols;
         }

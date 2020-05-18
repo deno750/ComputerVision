@@ -16,7 +16,7 @@
 using namespace std;
 class PanoramicImage {
 public:
-    PanoramicImage(vector<cv::Mat> images, double FOV, int ratio, bool useSIFT = true);
+    PanoramicImage(vector<cv::Mat> images, double FOV, int ratio, bool useSIFT = true, bool equalizeImages = false);
     cv::Mat computeLandscape();
     
 private:
