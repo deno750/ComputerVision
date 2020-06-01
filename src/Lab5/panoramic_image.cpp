@@ -50,43 +50,43 @@ void PanoramicImage::computeFeatures() {
         
         //Seeking the minimum distance from among the matches found
         float min_distance = FLT_MAX;
-        for (int i = 0; i < matches.size(); ++i) {
-            if (matches[i].distance < min_distance) {
-                min_distance = matches[i].distance;
+        for (int j = 0; j < matches.size(); ++j) {
+            if (matches[j].distance < min_distance) {
+                min_distance = matches[j].distance;
             }
         }
         
         //Seeking the good matches
         vector<cv::DMatch> goodMatches;
-        for (int i = 0; i < matches.size(); ++i) {
-            if (matches[i].distance <= ratio * min_distance) {
-                goodMatches.push_back(matches[i]);
+        for (int j = 0; j < matches.size(); ++j) {
+            if (matches[j].distance <= ratio * min_distance) {
+                goodMatches.push_back(matches[j]);
             }
         }
         
         //Add the points which result in goodMatches
         vector<cv::Point2f> points1, points2;
-        for (int i = 0; i < goodMatches.size(); ++i) {
-            points1.push_back(keyPoint1[goodMatches[i].queryIdx].pt);
-            points2.push_back(keyPoint2[goodMatches[i].trainIdx].pt);
+        for (int j = 0; j < goodMatches.size(); ++j) {
+            points1.push_back(keyPoint1[goodMatches[j].queryIdx].pt);
+            points2.push_back(keyPoint2[goodMatches[j].trainIdx].pt);
         }
     
         //Seeking the inlines
         vector<int> mask;
         cv::findHomography(points1, points2, cv::RANSAC, 3, mask);
         vector<cv::Point2f> inlines1, inlines2;
-        for (int i = 0; i < mask.size(); ++i) {
-            if (mask[i] == 1) { //The inlines are the points which has the flag 1 in mask
-                inlines1.push_back(points1[i]);
-                inlines2.push_back(points2[i]);
+        for (int j = 0; j < mask.size(); ++j) {
+            if (mask[j] == 1) { //The inlines are the points which has the flag 1 in mask
+                inlines1.push_back(points1[j]);
+                inlines2.push_back(points2[j]);
             }
         }
         
         //Computing the points mean for both images
         cv::Point2f left, right; //Variables which stores correspondigly the mean of the poins on the left and right image.
-        for (int i = 0; i < inlines1.size(); ++i) {
-            left += keyPoint1[goodMatches[i].queryIdx].pt;
-            right += keyPoint2[goodMatches[i].trainIdx].pt;
+        for (int j = 0; j < inlines1.size(); ++j) {
+            left += inlines1[j];
+            right += inlines2[j];
         }
         if (inlines1.size() > 0) {
             left /= static_cast<int>(inlines1.size());
@@ -98,8 +98,9 @@ void PanoramicImage::computeFeatures() {
        
         translations.push_back({left, right});
         
+        
         //Uncomment this block if you want to see the matches visually of the two images
-        /*
+        
         cv::Mat outImage;
         cv::Mat img1copy = img1.clone();
         cv::Mat img2copy = img2.clone();
@@ -108,7 +109,7 @@ void PanoramicImage::computeFeatures() {
     
         cv::drawMatches(img1copy, keyPoint1, img2copy, keyPoint2, goodMatches, outImage);
         
-        cv::imshow("Matches " + to_string(i), outImage);*/
+        cv::imshow("Matches " + to_string(i), outImage);
     }
 }
 
